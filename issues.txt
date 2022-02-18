@@ -1,0 +1,9 @@
+node-fetch imports need require
+web3-eth import needed adjustment to export (export default), see if we can get it to work with import without editing library
+mongodb - have to cast as IType when fetching from db to get properties
+
+todo
+- save addresses in contract transactions
+- lowercase contractbalances/contract transactions/addresses
+- value on transactions
+- erc721 transfer ownership
