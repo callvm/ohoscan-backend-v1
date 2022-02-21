@@ -1,0 +1,13 @@
+diff --git a/node_modules/web3-eth/types/index.d.ts b/node_modules/web3-eth/types/index.d.ts
+index 18e0a71..671292e 100644
+--- a/node_modules/web3-eth/types/index.d.ts
++++ b/node_modules/web3-eth/types/index.d.ts
+@@ -60,7 +60,7 @@ export {
+     chain
+ } from 'web3-core';
+ 
+-export class Eth {
++export default class Eth {
+     constructor();
+     constructor(provider: provider);
+     constructor(provider: provider, net: net.Socket);

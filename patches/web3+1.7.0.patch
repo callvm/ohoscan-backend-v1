@@ -1,0 +1,13 @@
+diff --git a/node_modules/web3/types/index.d.ts b/node_modules/web3/types/index.d.ts
+index 555e776..a2475d7 100644
+--- a/node_modules/web3/types/index.d.ts
++++ b/node_modules/web3/types/index.d.ts
+@@ -20,7 +20,7 @@
+ import * as net from 'net';
+ import { Bzz } from 'web3-bzz';
+ import { BatchRequest, provider, Providers, Extension } from 'web3-core';
+-import { Eth } from 'web3-eth';
++import Eth from 'web3-eth';
+ import { Personal } from 'web3-eth-personal';
+ import { Network } from 'web3-net';
+ import { Shh } from 'web3-shh';

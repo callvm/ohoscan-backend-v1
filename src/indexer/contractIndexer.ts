@@ -1,4 +1,4 @@
-import Web3 from "web3";
+
 import { ERC20ABI, ERC721ABI } from "./contracts";
 import {
   ContractBalance,
@@ -12,6 +12,7 @@ import {
   IContract,
   IContractTransaction,
 } from "../database/models";
+import Web3 from 'web3'
 
 const web3 = new Web3("https://api.oho.ai");
 const BURN_ADDRESS = "0x0000000000000000000000000000000000000000";

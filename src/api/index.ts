@@ -3,12 +3,14 @@ import express from "express";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import { eventEmitter } from "..";
-import { blocksRouter } from "./controllers";
+import { blocksRouter, transactionsRouter } from "./controllers";
+
 
 export const apiServer = async () => {
   const app = express();
   app.use(cors());
   app.use("/blocks", blocksRouter);
+  app.use("/transactions", transactionsRouter);
 
   const server = http.createServer(app);
   createWebsocketServer(server);
