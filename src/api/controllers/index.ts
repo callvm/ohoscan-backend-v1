@@ -1,2 +1,3 @@
 export * from "./blocks";
-export * from "./transactions"
+export * from "./contract";
+export * from "./transactions";

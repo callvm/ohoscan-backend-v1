@@ -3,13 +3,14 @@ import express from "express";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import { eventEmitter } from "..";
-import { blocksRouter, transactionsRouter } from "./controllers";
+import { blocksRouter, contractsRouter, transactionsRouter } from "./controllers";
 
 
 export const apiServer = async () => {
   const app = express();
   app.use(cors());
   app.use("/blocks", blocksRouter);
+  app.use("/contract", contractsRouter)
   app.use("/transactions", transactionsRouter);
 
   const server = http.createServer(app);
