@@ -16,7 +16,7 @@ export const indexLoop = async (db: Database) => {
 
         // From synced height + 1 to current height
         for (let outerIndex = syncedBlockHeight + 1; outerIndex <= currentChainHeight; outerIndex += concurrentBlocks) {
-            console.time('blocks')
+
             let requests = [];
 
             // Build the current batch, based on concurrentRequests (increment by blocksPerRequest, so it will take concurrentRequests amount of iterations to reach concurrentBlocks)
@@ -40,8 +40,6 @@ export const indexLoop = async (db: Database) => {
             let blocks: IBlock[] = [];
             let transactions: ITransaction[] = [];
             let blockResults = await Promise.all(requests);
-
-            console.log(outerIndex);
 
             // Format / flatten
             blockResults.forEach((res) => blocks.push(...res));
@@ -75,8 +73,6 @@ export const indexLoop = async (db: Database) => {
             // Emit
             if (blocks.length > 0) eventEmitter.emit("blocks", blocks);
             if (transactions.length > 0) eventEmitter.emit("transactions", transactions);
-
-            console.timeEnd('blocks')
         }
         indexLoop(db);
     } catch (e) {

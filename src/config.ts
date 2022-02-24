@@ -19,4 +19,7 @@ export const config = {
   api: {
     port: process.env.API_PORT,
   },
+  chain: {
+    maxSupply: Number(process.env.MAX_SUPPLY)
+  }
 };

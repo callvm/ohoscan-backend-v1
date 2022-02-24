@@ -1,7 +1,9 @@
 const fetch = require("node-fetch");
 import { config } from "../config";
-import { Block, IBlock } from "../database/models";
-import { ITransaction } from "../database/models/Transaction";
+import { IBlock, ITransaction } from "../database/models";
+import Eth from "web3-eth";
+
+const eth = new Eth(config.indexer.rpcURL!);
 
 export const getBlocks = async (blockHeights: number[]): Promise<IBlock[]> => {
   let blocks: IBlock[] = [];
@@ -54,6 +56,11 @@ export const getChainHeight = async (): Promise<number> => {
   }
   return height;
 };
+
+export const getGasPrice = async (): Promise<string> => {
+  let gasPrice = await eth.getGasPrice()
+  return gasPrice
+}
 
 const generateRequest = (apiRequests: ApiRequestBody[]) => {
   const url = config.indexer.rpcURL!;

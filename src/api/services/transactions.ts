@@ -16,3 +16,8 @@ export const getTransactionsPopulated = async (count: number) => {
     .exec();
     return transactions
 }
+
+export const getTransactionCount = async () => {
+  let count = await Transaction.count({})
+  return count
+}

@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { getContract } from "../services";
+import { getContract, getSummary } from "../services";
 
 export const infoRouter = Router();
 
 infoRouter.get("/summary", async (request, response, next) => {
-  response.send("summary");
+    let summary = await getSummary()
+    response.send(summary);
 });

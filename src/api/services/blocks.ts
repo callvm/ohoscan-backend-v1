@@ -1,4 +1,4 @@
-import { Block } from "../../database/models";
+import { Block, IBlock } from "../../database/models";
 
 export const getBlock = async (id: string) => {
   let blocks = await Block.findOne(
@@ -12,5 +12,5 @@ export const getLatestBlocks = async (count: number) => {
   let blocks = await Block.find({}, { __v: 0, _id: 0 })
     .sort({ _id: -1 })
     .limit(count);
-  return blocks;
+  return blocks as IBlock[];
 };

@@ -7,3 +7,8 @@ export const getContract = async (id: string) => {
   );
   return contract;
 };
+
+export const getContractCount = async () => {
+  let count = await Contract.count({})
+  return count
+}
