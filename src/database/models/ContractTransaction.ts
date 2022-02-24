@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 export enum ContractTransactionType {
   TRANSFER = "Token Transfer",
   MINTING = "Token Minting",
+  CREATION = "Token Creation",
   CALL = "Contract Call"
 }
 

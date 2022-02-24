@@ -20,10 +20,17 @@ export const createContract = async (address: string) => {
             contract.methods.symbol().call(),
             contract.methods.totalSupply().call(),
             contract.methods.decimals().call(),
-            contract.methods.owner().call(),
         ];
-        let [name, symbol, supply, decimals, owner] = await Promise.all(calls);
-        result = { name, symbol, supply, owner, address, type, decimals: Number(decimals) };
+        let [name, symbol, supply, decimals] = await Promise.all(calls);
+
+        // Owner isn't available on some ERC20 contracts
+        let owner
+        try {
+            owner = await contract.methods.owner().call()
+        } catch {
+            owner = null
+        }
+        result = { name, symbol, supply, address, owner, type, decimals: Number(decimals) };
     } else if (type == ContractType.ERC721) {
         let calls = [contract.methods.name().call(), contract.methods.symbol().call(), contract.methods.owner().call()];
         let [name, symbol, owner] = await Promise.all(calls);
@@ -40,7 +47,7 @@ export const getContractTransactions = async (contractAddresses: string[], fromB
     for (let contractAddress of contractAddresses) {
 
         let existingContract = await Contract.findOne({ address: contractAddress }) as IContract;
-        if (!existingContract){
+        if (!existingContract) {
             continue;
         }
         let abi = existingContract.type == ContractType.ERC20 ? ERC20ABI : ERC721ABI;
@@ -78,7 +85,12 @@ const saveContractTransactions = async (transactions: any[], contractType: Contr
                 }
 
                 if (contractTransaction.from == BURN_ADDRESS) {
-                    contractTransaction.type = ContractTransactionType.MINTING;
+                    if (contractTransaction.to == BURN_ADDRESS) {
+                        contractTransaction.type = ContractTransactionType.CREATION
+                    } else {
+                        contractTransaction.type = ContractTransactionType.MINTING
+                    }
+
                 }
                 break;
             }

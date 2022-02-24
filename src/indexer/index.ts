@@ -62,13 +62,16 @@ export const indexLoop = async (db: Database) => {
             let contractTransactions = await ContractTransaction.find({ transactionHash: { "$in": transactions.map(t => t.hash) } })
 
             transactions.forEach(transaction => {
-                let contractTransaction = contractTransactions.find(ct => ct.transactionHash == transaction.hash)
-                if (contractTransaction) {
-                    transaction.contractTransaction = contractTransaction._id
-                }
+                transaction.contractTransactions = new Array<IContractTransaction>()
+                let existingContractTransactions = contractTransactions.filter(ct => ct.transactionHash == transaction.hash)
+                existingContractTransactions.forEach(tx => {
+                    transaction.contractTransactions.push(tx._id)
+                })
             })
 
             await Transaction.insertMany(transactions);
+
+            console.log(outerIndex)
 
             // Emit
             if (blocks.length > 0) eventEmitter.emit("blocks", blocks);

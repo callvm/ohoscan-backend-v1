@@ -10,7 +10,7 @@ export interface IContract {
     name: string;
     symbol: string;
     address: string;
-    owner: string;
+    owner?: string;
     imageUrl?: string;
     supply?: string;
     decimals?: number;

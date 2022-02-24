@@ -1,31 +1,20 @@
 import Eth from "web3-eth";
 import { config } from "../config";
 import { Address, IAddress, ITransaction } from "../database/models";
+import { getAddressesFromTransactions } from "../rpc";
 import { createContract, getContractTransactions } from "./contractIndexer";
 
 const eth = new Eth(config.indexer.rpcURL!);
 
-export const indexAddresses = async (
-  transactions: ITransaction[],
-  from: number,
-  to: number
-) => {
-  let addresses: string[] = [];
+export const indexAddresses = async (transactions: ITransaction[], from: number, to: number) => {
+
+  let addresses = await getAddressesFromTransactions(transactions)
   let contractAddresses: string[] = [];
 
-  transactions.forEach((transaction) => {
-    addresses.push(
-      transaction.from.toLowerCase(),
-      transaction.to.toLowerCase()
-    );
-  });
-
-  addresses = [...new Set(addresses.filter((a) => a))];
-
   for (let address of addresses) {
-    let existingAddress: IAddress = (await Address.findOne({
-      address,
-    })) as IAddress;
+    
+    let existingAddress: IAddress = (await Address.findOne({ address })) as IAddress;
+
     // Create address / contract if we don't have it
     if (!existingAddress) {
       let code = await eth.getCode(address);

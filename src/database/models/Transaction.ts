@@ -22,7 +22,7 @@ export interface ITransaction {
   transactionIndex: number;
 
   transactionType: TransactionType;
-  contractTransaction?: IContractTransaction;
+  contractTransactions: IContractTransaction[];
 }
 
 const TransactionSchema: Schema = new Schema({
@@ -46,7 +46,7 @@ const TransactionSchema: Schema = new Schema({
     default: TransactionType.TRANSACTION,
   },
 
-  contractTransaction: { type: Schema.Types.ObjectId, ref: 'ContractTransaction', required: false }
+  contractTransactions: [{ type: Schema.Types.ObjectId, ref: 'ContractTransaction', required: false }]
 });
 
 export const Transaction = model<ITransaction>(

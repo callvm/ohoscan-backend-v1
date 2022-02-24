@@ -62,6 +62,33 @@ export const getGasPrice = async (): Promise<string> => {
   return gasPrice
 }
 
+export const getAddressesFromTransactions = async (transactions: ITransaction[]) => {
+  if (transactions.length == 0) return []
+  let addresses: string[] = []
+  let requestBodies: ApiRequestBody[] = transactions.map((transaction) => {
+    {
+      let body: ApiRequestBody = {
+        method: "eth_getTransactionReceipt",
+        params: [transaction.hash],
+      };
+      return body;
+    }
+  });
+  let requests = generateRequest(requestBodies);
+  let response = await requests;
+  let json = await response.json();
+
+  json.forEach((reciept: any) => {
+    addresses.push(reciept.result.from, reciept.result.to)
+    reciept.result.logs.forEach((log: any) => {
+      addresses.push(log.address)
+    })
+  })
+
+  return [...new Set(addresses.filter((a) => a))];
+
+}
+
 const generateRequest = (apiRequests: ApiRequestBody[]) => {
   const url = config.indexer.rpcURL!;
   let body: any[] = [];
