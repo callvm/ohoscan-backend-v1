@@ -3,7 +3,8 @@ import express from "express";
 import http from "http";
 import { Server, Socket } from "socket.io";
 import { eventEmitter } from "..";
-import { blocksRouter, contractsRouter, transactionsRouter } from "./controllers";
+import { IBlock } from "../database/models";
+import { blocksRouter, contractsRouter, infoRouter, transactionsRouter } from "./controllers";
 
 
 export const apiServer = async () => {
@@ -11,6 +12,7 @@ export const apiServer = async () => {
   app.use(cors());
   app.use("/blocks", blocksRouter);
   app.use("/contract", contractsRouter)
+  app.use("/info", infoRouter)
   app.use("/transactions", transactionsRouter);
 
   const server = http.createServer(app);
@@ -30,8 +32,8 @@ const createWebsocketServer = (server: http.Server) => {
     allowEIO3: true,
   });
   io.on("connection", (socket: Socket) => {
-    eventEmitter.on("blocks", (blocks) => {
-      socket.emit("blocks", blocks);
+    eventEmitter.on("blocks", (blocks: IBlock[]) => {
+      socket.emit("blocks", blocks.sort((blockA, blockB) => blockB.number - blockA.number));
     });
     eventEmitter.on("transactions", (transactions) => {
       socket.emit("transactions", transactions);

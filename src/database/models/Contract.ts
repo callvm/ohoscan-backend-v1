@@ -3,6 +3,7 @@ import { Schema, model } from "mongoose";
 export enum ContractType {
     ERC20 = "ERC20",
     ERC721 = "ERC721",
+    OTHER = "Other"
 }
 
 export interface IContract {

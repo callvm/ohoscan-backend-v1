@@ -1,8 +1,9 @@
 import { Schema, model } from "mongoose";
 
 export enum ContractTransactionType {
-  TRANSFER = "Transfer",
-  MINTING = "Minting",
+  TRANSFER = "Token Transfer",
+  MINTING = "Token Minting",
+  CALL = "Contract Call"
 }
 
 export interface IContractTransaction {

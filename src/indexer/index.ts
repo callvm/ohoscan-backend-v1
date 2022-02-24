@@ -1,7 +1,7 @@
 import { config } from "../config";
 import { Database } from "../database";
 import { getBlocks, getChainHeight } from "../rpc";
-import { IBlock, Block, ITransaction, Transaction } from "../database/models";
+import { IBlock, Block, ITransaction, Transaction, ContractTransaction, IContractTransaction } from "../database/models";
 import { eventEmitter } from "..";
 import { indexAddresses } from "./addressIndexer";
 import { getTransactionTypes } from "./transactionIndexer";
@@ -11,12 +11,12 @@ export const indexLoop = async (db: Database) => {
         const concurrentRequests = Number(config.indexer.concurrentRequests);
         const blocksPerRequest = Number(config.indexer.blocksPerRequest);
         const concurrentBlocks = concurrentRequests * blocksPerRequest;
-        const syncedBlockHeight = await db.getSyncedHeight(); //3716420
+        const syncedBlockHeight = await db.getSyncedHeight();
         const currentChainHeight = await getChainHeight();
 
         // From synced height + 1 to current height
         for (let outerIndex = syncedBlockHeight + 1; outerIndex <= currentChainHeight; outerIndex += concurrentBlocks) {
-			console.time('blocks')
+            console.time('blocks')
             let requests = [];
 
             // Build the current batch, based on concurrentRequests (increment by blocksPerRequest, so it will take concurrentRequests amount of iterations to reach concurrentBlocks)
@@ -60,15 +60,24 @@ export const indexLoop = async (db: Database) => {
                     };
                 })
             );
+
+            let contractTransactions = await ContractTransaction.find({ transactionHash: { "$in": transactions.map(t => t.hash) } })
+
+            transactions.forEach(transaction => {
+                let contractTransaction = contractTransactions.find(ct => ct.transactionHash == transaction.hash)
+                if (contractTransaction) {
+                    transaction.contractTransaction = contractTransaction._id
+                }
+            })
+
             await Transaction.insertMany(transactions);
 
             // Emit
             if (blocks.length > 0) eventEmitter.emit("blocks", blocks);
             if (transactions.length > 0) eventEmitter.emit("transactions", transactions);
 
-			console.timeEnd('blocks')
+            console.timeEnd('blocks')
         }
-		
         indexLoop(db);
     } catch (e) {
         console.log(e);

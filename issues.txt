@@ -7,3 +7,5 @@ todo
 - lowercase contractbalances/contract transactions/addresses
 - value on transactions
 - erc721 transfer ownership
+- long running queries, i.e. getting block 5,000,000
+- save miner addresses

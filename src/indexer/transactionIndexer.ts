@@ -1,7 +1,8 @@
 import Eth from "web3-eth";
+import { config } from "../config";
 import { ITransaction, TransactionType } from "../database/models";
 
-const eth = new Eth("https://api.oho.ai");
+const eth = new Eth(config.indexer.rpcURL!);
 
 export const getTransactionTypes = async (transactions: ITransaction[]) => {
   for (let transaction of transactions) {

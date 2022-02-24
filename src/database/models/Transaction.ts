@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import { IContractTransaction } from ".";
 
 export enum TransactionType {
   TRANSACTION = "Transaction",
@@ -21,6 +22,7 @@ export interface ITransaction {
   transactionIndex: number;
 
   transactionType: TransactionType;
+  contractTransaction?: IContractTransaction;
 }
 
 const TransactionSchema: Schema = new Schema({
@@ -43,6 +45,8 @@ const TransactionSchema: Schema = new Schema({
     enum: Object.values(TransactionType),
     default: TransactionType.TRANSACTION,
   },
+
+  contractTransaction: { type: Schema.Types.ObjectId, ref: 'ContractTransaction', required: false }
 });
 
 export const Transaction = model<ITransaction>(

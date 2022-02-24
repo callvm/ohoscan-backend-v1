@@ -1,8 +1,9 @@
 import Eth from "web3-eth";
+import { config } from "../config";
 import { Address, IAddress, ITransaction } from "../database/models";
 import { createContract, getContractTransactions } from "./contractIndexer";
 
-const eth = new Eth("https://api.oho.ai");
+const eth = new Eth(config.indexer.rpcURL!);
 
 export const indexAddresses = async (
   transactions: ITransaction[],
@@ -39,6 +40,5 @@ export const indexAddresses = async (
     if (existingAddress.isContract)
       contractAddresses.push(existingAddress.address);
   }
-
   await getContractTransactions(contractAddresses, from, to);
 };
