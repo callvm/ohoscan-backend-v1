@@ -11,12 +11,15 @@ export const indexLoop = async (db: Database) => {
         const concurrentRequests = Number(config.indexer.concurrentRequests);
         const blocksPerRequest = Number(config.indexer.blocksPerRequest);
         const concurrentBlocks = concurrentRequests * blocksPerRequest;
-        const syncedBlockHeight = 5628071 //await db.getSyncedHeight();
+        const syncedBlockHeight = await db.getSyncedHeight();
         const currentChainHeight = await getChainHeight();
 
         // From synced height + 1 to current height
         for (let outerIndex = syncedBlockHeight + 1; outerIndex <= currentChainHeight; outerIndex += concurrentBlocks) {
-
+            
+            console.log(outerIndex)
+            console.time('blocks')
+            
             let requests = [];
             let minerAddresses = []
 
@@ -41,7 +44,7 @@ export const indexLoop = async (db: Database) => {
             let blocks: IBlock[] = [];
             let transactions: ITransaction[] = [];
             let blockResults = await Promise.all(requests);
-
+            
             // Format / flatten
             blockResults.forEach((res) => blocks.push(...res));
             for (let block of blocks) {
@@ -69,7 +72,7 @@ export const indexLoop = async (db: Database) => {
             // Emit
             if (blocks.length > 0) eventEmitter.emit("blocks", blocks);
             if (transactions.length > 0) eventEmitter.emit("transactions", transactions);
-
+            console.timeEnd('blocks')
         }
 
         indexLoop(db);

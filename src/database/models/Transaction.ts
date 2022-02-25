@@ -26,14 +26,14 @@ export interface ITransaction {
 }
 
 const TransactionSchema: Schema = new Schema({
-  blockHash: { type: String },
-  from: { type: String, lowercase: true },
+  blockHash: { type: String, index: true },
+  from: { type: String, lowercase: true, index: true },
   hash: { type: String },
   input: { type: String },
-  to: { type: String, lowercase: true },
+  to: { type: String, lowercase: true, index: true },
   value: { type: String },
 
-  blockNumber: { type: Number },
+  blockNumber: { type: Number, index: true },
   gas: { type: Number },
   gasPrice: { type: Number },
   nonce: { type: Number },
@@ -49,7 +49,4 @@ const TransactionSchema: Schema = new Schema({
   contractTransactions: [{ type: Schema.Types.ObjectId, ref: 'ContractTransaction', required: false }]
 });
 
-export const Transaction = model<ITransaction>(
-  "Transaction",
-  TransactionSchema
-);
+export const Transaction = model<ITransaction>("Transaction", TransactionSchema);

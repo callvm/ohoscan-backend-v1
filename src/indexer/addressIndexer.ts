@@ -26,6 +26,7 @@ export const createOrFindAddresses = async (addresses: string[]): Promise<IAddre
     }
     createdAddresses.push(newAddress)
     if (newAddress.isContract) {
+      // consolidate to speed up
       await createContract(newAddress.address)
     }
   }

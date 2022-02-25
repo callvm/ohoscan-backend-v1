@@ -22,7 +22,7 @@ export interface IBlock {
 }
 
 const BlockSchema: Schema = new Schema({
-  hash: { type: String },
+  hash: { type: String, index: true },
   parentHash: { type: String },
   stateRoot: { type: String },
   miner: { type: String },
@@ -30,7 +30,7 @@ const BlockSchema: Schema = new Schema({
 
   difficulty: { type: Number },
   totalDifficulty: { type: Number },
-  number: { type: Number },
+  number: { type: Number, index: true },
   size: { type: Number },
   gasLimit: { type: Number },
   gasUsed: { type: Number },

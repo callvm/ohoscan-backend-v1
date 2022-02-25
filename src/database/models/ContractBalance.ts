@@ -7,12 +7,9 @@ export interface IContractBalance {
 }
 
 const ContractBalanceSchema: Schema = new Schema({
-  address: { type: String, lowercase: true },
+  address: { type: String, lowercase: true, index: true },
   balance: { type: String },
-  contractAddress: { type: String, lowercase: true },
+  contractAddress: { type: String, lowercase: true, index: true },
 });
 
-export const ContractBalance = model<IContractBalance>(
-  "ContractBalance",
-  ContractBalanceSchema
-);
+export const ContractBalance = model<IContractBalance>("ContractBalance", ContractBalanceSchema);

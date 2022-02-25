@@ -3,4 +3,3 @@ web3-eth import needed adjustment to export (export default), see if we can get 
 
 todo
 - erc721 transfer ownership
-- long running queries, i.e. getting block 5,000,000

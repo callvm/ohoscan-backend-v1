@@ -22,12 +22,12 @@ export interface IContractTransaction {
 }
 
 const ContractTransactionSchema: Schema = new Schema({
-  blockNumber: { type: Number },
+  blockNumber: { type: Number, index: true },
   transactionIndex: { type: Number },
 
   blockHash: { type: String },
-  transactionHash: { type: String },
-  contractAddress: { type: String, lowercase: true },
+  transactionHash: { type: String, index: true },
+  contractAddress: { type: String, lowercase: true, index: true },
   from: { type: String, lowercase: true },
   to: { type: String, lowercase: true },
   value: { type: String },
@@ -39,7 +39,4 @@ const ContractTransactionSchema: Schema = new Schema({
   },
 });
 
-export const ContractTransaction = model<IContractTransaction>(
-  "ContractTransaction",
-  ContractTransactionSchema
-);
+export const ContractTransaction = model<IContractTransaction>("ContractTransaction", ContractTransactionSchema);

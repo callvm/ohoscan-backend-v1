@@ -82,6 +82,7 @@ export const getTransactionReceipts = async (transactionHashes: string[]) => {
 }
 
 export const getAddressCodes = async (addresses: string[]) => {
+  if (addresses.length == 0) return []
   let requestBodies: ApiRequestBody[] = addresses.map((address) => {
     {
       let body: ApiRequestBody = {
