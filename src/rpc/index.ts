@@ -62,14 +62,15 @@ export const getGasPrice = async (): Promise<string> => {
   return gasPrice
 }
 
-export const getAddressesFromTransactions = async (transactions: ITransaction[]) => {
-  if (transactions.length == 0) return []
-  let addresses: string[] = []
-  let requestBodies: ApiRequestBody[] = transactions.map((transaction) => {
+export const getTransactionReceipts = async (transactionHashes: string[]) => {
+
+  if (transactionHashes.length == 0) return []
+
+  let requestBodies: ApiRequestBody[] = transactionHashes.map((transaction) => {
     {
       let body: ApiRequestBody = {
         method: "eth_getTransactionReceipt",
-        params: [transaction.hash],
+        params: [transaction],
       };
       return body;
     }
@@ -77,16 +78,24 @@ export const getAddressesFromTransactions = async (transactions: ITransaction[])
   let requests = generateRequest(requestBodies);
   let response = await requests;
   let json = await response.json();
+  return json
+}
 
-  json.forEach((reciept: any) => {
-    addresses.push(reciept.result.from, reciept.result.to)
-    reciept.result.logs.forEach((log: any) => {
-      addresses.push(log.address)
-    })
-  })
-
-  return [...new Set(addresses.filter((a) => a))];
-
+export const getAddressCodes = async (addresses: string[]) => {
+  let requestBodies: ApiRequestBody[] = addresses.map((address) => {
+    {
+      let body: ApiRequestBody = {
+        method: "eth_getCode",
+        params: [address, "latest"],
+        id: address
+      };
+      return body;
+    }
+  });
+  let requests = generateRequest(requestBodies);
+  let response = await requests;
+  let json = await response.json();
+  return json
 }
 
 const generateRequest = (apiRequests: ApiRequestBody[]) => {
@@ -95,7 +104,7 @@ const generateRequest = (apiRequests: ApiRequestBody[]) => {
   apiRequests.forEach((request) => {
     body.push({
       jsonrpc: "2.0",
-      id: 1,
+      id: request.id || 1,
       method: request.method,
       params: request.params,
     });
@@ -129,4 +138,5 @@ const getTransactions = (transactions: any, timestamp: any): ITransaction[] => {
 interface ApiRequestBody {
   method: string;
   params: any[];
+  id?: string;
 }

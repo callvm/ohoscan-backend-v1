@@ -1,23 +1,24 @@
 import { config } from "../config";
 import { Database } from "../database";
-import { getBlocks, getChainHeight } from "../rpc";
-import { IBlock, Block, ITransaction, Transaction, ContractTransaction, IContractTransaction } from "../database/models";
+import { getBlocks, getChainHeight, getTransactionReceipts } from "../rpc";
+import { IBlock, Block, ITransaction } from "../database/models";
 import { eventEmitter } from "..";
-import { indexAddresses } from "./addressIndexer";
-import { getTransactionTypes } from "./transactionIndexer";
+import { createOrFindAddresses, indexAddresses } from "./addressIndexer";
+import { indexTransactions } from "./transactionIndexer";
 
 export const indexLoop = async (db: Database) => {
     try {
         const concurrentRequests = Number(config.indexer.concurrentRequests);
         const blocksPerRequest = Number(config.indexer.blocksPerRequest);
         const concurrentBlocks = concurrentRequests * blocksPerRequest;
-        const syncedBlockHeight = await db.getSyncedHeight();
+        const syncedBlockHeight = 5628071 //await db.getSyncedHeight();
         const currentChainHeight = await getChainHeight();
 
         // From synced height + 1 to current height
         for (let outerIndex = syncedBlockHeight + 1; outerIndex <= currentChainHeight; outerIndex += concurrentBlocks) {
 
             let requests = [];
+            let minerAddresses = []
 
             // Build the current batch, based on concurrentRequests (increment by blocksPerRequest, so it will take concurrentRequests amount of iterations to reach concurrentBlocks)
             for (let innerIndex = 0; innerIndex < concurrentBlocks; innerIndex += blocksPerRequest) {
@@ -43,11 +44,13 @@ export const indexLoop = async (db: Database) => {
 
             // Format / flatten
             blockResults.forEach((res) => blocks.push(...res));
-            blocks.forEach((block) => transactions.push(...block.transactions));
+            for (let block of blocks) {
+                transactions.push(...block.transactions)
+                minerAddresses.push(block.miner)
+            }
 
-            await getTransactionTypes(transactions);
-
-            await indexAddresses(transactions, outerIndex, outerIndex + concurrentBlocks - 1);
+            minerAddresses = [...new Set(minerAddresses)]
+            await createOrFindAddresses(minerAddresses)
 
             // Write to DB
             await Block.insertMany(
@@ -59,24 +62,16 @@ export const indexLoop = async (db: Database) => {
                 })
             );
 
-            let contractTransactions = await ContractTransaction.find({ transactionHash: { "$in": transactions.map(t => t.hash) } })
-
-            transactions.forEach(transaction => {
-                transaction.contractTransactions = new Array<IContractTransaction>()
-                let existingContractTransactions = contractTransactions.filter(ct => ct.transactionHash == transaction.hash)
-                existingContractTransactions.forEach(tx => {
-                    transaction.contractTransactions.push(tx._id)
-                })
-            })
-
-            await Transaction.insertMany(transactions);
-
-            console.log(outerIndex)
+            let transactionReceipts = await getTransactionReceipts(transactions.map(t => t.hash))
+            await indexAddresses(transactionReceipts, outerIndex, outerIndex + concurrentBlocks - 1);
+            await indexTransactions(transactions, transactionReceipts)
 
             // Emit
             if (blocks.length > 0) eventEmitter.emit("blocks", blocks);
             if (transactions.length > 0) eventEmitter.emit("transactions", transactions);
+
         }
+
         indexLoop(db);
     } catch (e) {
         console.log(e);

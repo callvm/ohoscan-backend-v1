@@ -3,13 +3,13 @@ import { config } from "../config";
 import { ContractBalance, IContractBalance } from "../database/models/ContractBalance";
 import { Contract, ContractTransaction, ContractTransactionType, ContractType, IContract, IContractTransaction } from "../database/models";
 import Web3 from "web3";
+import { createOrFindAddresses } from "./addressIndexer";
 
 const web3 = new Web3(config.indexer.rpcURL!);
 const BURN_ADDRESS = "0x0000000000000000000000000000000000000000";
 const TRANSACTION_EVENTS = ["Transfer", "Approval"]
 
 export const createContract = async (address: string) => {
-
     let result: IContract;
     let contract = new web3.eth.Contract(ERC20ABI, address);
     let type = await getContractType(contract);
@@ -43,7 +43,6 @@ export const createContract = async (address: string) => {
 };
 
 export const getContractTransactions = async (contractAddresses: string[], fromBlock: number, toBlock: number) => {
-
     for (let contractAddress of contractAddresses) {
 
         let existingContract = await Contract.findOne({ address: contractAddress }) as IContract;
@@ -63,10 +62,10 @@ export const getContractTransactions = async (contractAddresses: string[], fromB
 };
 
 const saveContractTransactions = async (transactions: any[], contractType: ContractType) => {
-
     let contractTransactions: IContractTransaction[] = [];
+    let addresses: string[]  =[]
 
-    transactions.forEach((transaction) => {
+    for (let transaction of transactions){
 
         let contractTransaction: IContractTransaction;
 
@@ -108,13 +107,15 @@ const saveContractTransactions = async (transactions: any[], contractType: Contr
                 return;
             }
         }
+
+        addresses.push(contractTransaction.to, contractTransaction.from)
         contractTransactions.push(contractTransaction);
-    });
+    }
     await ContractTransaction.insertMany(contractTransactions);
+    await createOrFindAddresses([...new Set(addresses.filter(a => a))])
 };
 
 const updateContractBalances = async (transactions: any[]) => {
-
     if (transactions.length > 0) {
 
         let addresses: string[] = [];
